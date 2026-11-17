@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.daowen.mapper.EatlogMapper">
+
+
+    <select id="getEntityPlus" resultType="eatlog">
+                 select  e.*,
+                  h.accountname as hyaccount,
+                  h.name as hyname
+                  from  eatlog e
+                  left join huiyuan h
+                  on h.id=e.hyid
+
+                 where  1=1
+                <if test="hyid!=null">
+                    and hyid=#{hyid}
+                </if>
+      </select>
+
+    <select id="loadPlus" resultType="eatlog">
+                  select  e.*,
+                  h.accountname as hyaccount,
+                  h.name as hyname
+                  from  eatlog e
+                  left join huiyuan h
+                  on h.id=e.hyid
+                 where  e.id=#{id}
+      </select>
+
+
+
+
+    <select resultType="eatlog" parameterType="map" id="warningRec">
+
+
+        select distinct t1.*
+        from eatlog t1, eatlog t2, eatlog t3
+        where t1.calorie <![CDATA[>=]]> 800 and t2.calorie <![CDATA[>=]]>800 and t3.calorie<![CDATA[>=]]>800
+        and
+        (
+        (DATEDIFF(t1.createtime,t2.createtime)= 1 and  DATEDIFF(t1.createtime,t3.createtime) = 2 and DATEDIFF(t2.createtime,t3.createtime) =1) -- t1, t2, t3
+        or
+        (DATEDIFF(t2.createtime,t1.createtime)= 1 and  DATEDIFF(t2.createtime,t3.createtime) = 2 and DATEDIFF(t1.createtime,t3.createtime) =1) -- t2, t1, t3
+        or
+        (DATEDIFF(t3.createtime,t2.createtime)= 1 and  DATEDIFF(t3.createtime,t1.createtime) = 2 and DATEDIFF(t2.createtime,t1.createtime) =1) -- t2, t1, t3
+        )
+        <if test="hyid!=null">
+            and t1.hyid=#{hyid}
+        </if>
+        order by t1.id
+
+    </select>
+
+
+</mapper>
+
+
